@@ -1,0 +1,50 @@
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: utf-8
+
+eureka:
+  client:
+    enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true
+    #ip-address: "${HOST}"
+    ip-address: "localhost"
+
+spring:
+  profiles: prod
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://localhost:5434/nrf_device
+    username: nrf_device
+    password: DBLab1004**
+    sql-script-encoding: UTF-8
+    hikari:
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+  jpa:
+    database: postgresql
+    hibernate:
+      naming:
+        strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        enable_lazy_load_no_trans: true
+
+logging:
+  level:
+    io.wisoft.iotplatform.device: info
+    org.axonframework: info
+    org.hibernate.SQL: info

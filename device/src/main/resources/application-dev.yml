@@ -1,0 +1,45 @@
+eureka:
+  client:
+    enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://${EUREKA_SERVER:localhost}:8761/eureka/
+
+spring:
+  profiles: dev
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/nrf_device
+    username: nrf_device
+    password: DBLab1004**
+    hikari:
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+  jpa:
+    database: postgresql
+    hibernate:
+      naming:
+        strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    show-sql: true
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+
+server:
+  port: 8082
+  tomcat:
+    uri-encoding: UTF-8
+
+logging:
+  file: logs/api-server-prod.log
+  level:
+    io.wisoft.iotplatform: INFO
+    org.springframework.web: INFO
+    org.springframework: OFF

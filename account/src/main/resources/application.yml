@@ -1,0 +1,55 @@
+multiplicationHost: http://localhost:8000/api/v1
+
+eureka:
+  client:
+    enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true
+    #ip-address: "${HOST}"
+    ip-address: "localhost"
+
+spring:
+  profiles: prod
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://localhost:5434/nrf_account
+    username: nrf_account
+    password: DBLab1004**
+    sql-script-encoding: UTF-8
+    hikari:
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+  jpa:
+    database: postgresql
+    hibernate:
+      naming:
+        strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        enable_lazy_load_no_trans: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+
+logging:
+  level:
+    io.wisoft.iotplatform: INFO
+    org.springframework.web: INFO
+    org.springframework: OFF
+  file:
+    name: /account/logs/api-server-prod.log

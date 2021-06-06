@@ -1,0 +1,23 @@
+-- Account
+select * from account;
+-- INSERT INTO account(account_id,username, account_name, password, email, join_date, modify_date, account_role, description)
+-- VALUES ('123e4567-e89b-12d3-a456-426655440001','admin', '관리자', 'DBLab321**', 'contact@wisoft.io', DEFAULT, DEFAULT, 'ROLE_ADMIN',
+--         '한밭대학교 무선통신소프트웨어 연구실 관리자임.');
+
+-- INSERT INTO account(username, account_name, password, email, join_date, modify_date, account_role, description)
+-- VALUES ('hyeonsig', '전현식', 'DBLab321**', 'hyeonsig@wisoft.io', DEFAULT, DEFAULT, 'ROLE_USER',
+--         '한밭대학교 무선통신소프트웨어 연구실 멤버임.');
+--
+-- -- Group
+-- INSERT INTO groups (group_name, join_date, modify_date, description)
+-- VALUES ('테스트1', DEFAULT, DEFAULT, '테스트 그룹1 입니다.');
+--
+-- INSERT INTO groups (group_name, join_date, modify_date, description)
+-- VALUES ('테스트2', DEFAULT, DEFAULT, '테스트 그룹2 입니다.');
+--
+-- -- AccountGroup
+-- INSERT INTO account_group (group_role, account_id, group_id)
+-- VALUES ('ADMIN', 1, 1);
+--
+-- INSERT INTO account_group (group_role, account_id, group_id)
+-- VALUES ('USER', 1, 2);

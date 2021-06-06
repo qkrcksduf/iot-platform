@@ -1,0 +1,217 @@
+### model-type을 등록합니다.
+POST http://192.168.10.112:8000/api/v1/model-types
+Content-Type: application/json
+
+{
+  "name": "서보모터",
+  "description": "서보모터입니다."
+}
+
+> {%
+  client.global.set("motor_model_type_id", response.body.id.toString());
+%}
+
+### model-type을 등록합니다.
+POST http://192.168.10.112:8000/api/v1/model-types
+Content-Type: application/json
+
+{
+  "name": "먼지센서",
+  "description": "미세먼지량을 측정합니다."
+}
+
+> {%
+  client.global.set("dust_model_type_id", response.body.id.toString());
+%}
+
+### model을 등록합니다.
+POST http://192.168.10.112:8000/api/v1/models
+Content-Type: application/json
+
+{
+  "name": "MG90S",
+  "modelTypeId": "{{motor_model_type_id}}",
+  "description": "저성능 서보모터입니다."
+}
+
+> {%
+  client.global.set("motor_model_id", response.body.id.toString());
+%}
+
+### model을 등록합니다.
+POST http://192.168.10.112:8000/api/v1/models
+Content-Type: application/json
+
+{
+  "name": "GP2Y10",
+  "modelTypeId": "{{dust_model_type_id}}",
+  "description": "저성능 서보모터입니다."
+}
+
+> {%
+  client.global.set("dust_model_id", response.body.id.toString());
+%}
+
+### 1. 그룹을 등록합니다.
+POST http://192.168.10.112:8000/api/v1/groups
+Content-Type: application/json
+
+{
+  "name": "대전 광역시 유성구 옷 공장 그룹",
+  "description": "대전 유성구의 옷 생산 공장 그룹"
+}
+
+> {%
+  client.global.set("group_id", response.body.id.toString());
+%}
+
+### 2. 사용자를 등록합니다.
+POST http://192.168.10.112:8000/api/v1/accounts
+Content-Type: application/json
+
+{
+  "name": "HongGilDong5",
+  "username": "gildong3",
+  "password": "gildong1235",
+  "email": "gildong@gmail.com1",
+  "role": "ROLE_USER",
+  "description": "나이크 한양 공장 공장장"
+}
+
+> {%
+  client.global.set("account_id", response.body.id.toString());
+%}
+
+### 3. 사용자를 그룹에 등록합니다.
+POST http://192.168.10.112:8000/api/v1/accountGroups
+Content-Type: application/json
+
+{
+  "accountId": "{{account_id}}",
+  "groupId": "{{group_id}}",
+  "role": "USER"
+}
+
+
+### 4. cnc를 등록합니다.
+POST http://192.168.10.112:8000/api/v1/cncs
+Content-Type: application/json
+
+{
+  "name": "대전 유성구의 옷 생산 공장의 CnC",
+  "groupId": "{{group_id}}",
+  "ipAddress": "192.168.10.0",
+  "location": "대전광역시 유성구",
+  "serial": "C0001",
+  "status": "ACTIVE",
+  "description": "유성구 옷 생산 공장들의 디바이스를 관리하기 위한 CnC입니다."
+}
+
+> {%
+  client.global.set("cnc_id", response.body.id.toString());
+%}
+
+### 5. device를 등록합니다.
+POST http://192.168.10.112:8000/api/v1/devices
+Content-Type: application/json
+
+{
+  "name": "공장 A의 Left Top Device",
+  "deviceType": "AN",
+  "cncId": "{{cnc_id}}",
+  "ipAddress": "192.168.10.2",
+  "location": "공장의 왼쪽 위에 위치한 디바이스",
+  "protocol": "MQTT",
+  "serial": "d0001",
+  "sleep": false,
+  "status": "ACTIVE",
+  "battery": 100,
+  "description": "한양 공장의 왼쪽 위에 위치한 디바이스 입니다."
+}
+
+> {%
+  client.global.set("device_id", response.body.id.toString());
+%}
+
+### 6. actuator를 등록합니다.
+POST http://192.168.10.112:8000/api/v1/actuators
+Content-Type: application/json
+
+{
+  "serial": "a0001",
+  "name": "서보모터 A",
+  "deviceId": "{{device_id}}",
+  "modelId": "{{motor_model_id}}",
+  "description": "환풍기의 스위치를 제어하는 서보모터입니다."
+}
+
+> {%
+  client.global.set("actuator_id", response.body.id.toString());
+%}
+
+### 7. sensor를 등록합니다.
+POST http://192.168.10.112:8000/api/v1/sensors
+Content-Type: application/json
+
+{
+  "serial": "s0001",
+  "name": "미세먼지 센서 A",
+  "deviceId": "{{device_id}}",
+  "modelId": "{{dust_model_id}}",
+  "description": "미세먼지량를 측정하는 센서입니다."
+}
+
+> {%
+  client.global.set("sensor_id", response.body.id.toString());
+%}
+
+### 8. 미세먼지 농도가 높아 센싱값을 등록합니다. 이후 환풍기를 돌려 미세먼지 농도를 낮춥니다.
+POST http://192.168.10.112:8000/api/v1/event-sensings/auto
+Content-Type: application/json
+
+{
+  "sensorId": "{{sensor_id}}",
+  "actuatorId": "{{actuator_id}}",
+  "actuatingValue": "START",
+  "sensingValue": {
+    "dustValue": "40.0"
+  },
+  "environmentValue": {
+    "temperature" : "30.0"
+  }
+}
+
+### 모든 센싱 값을 조회합니다.
+GET http://192.168.10.112:8000/api/v1/event-querys-sensings/758eb9ac-55b5-451c-8c2c-c902b0e07508
+
+### 모든 액추에이팅 값을 조회합니다.
+GET http://192.168.10.112:8000/api/v1/event-querys-actuatings/7bfdf42f-c3d9-4159-92d2-e40b806a0722
+
+###
+GET http://192.168.10.112:8000/api/v1/event-querys-actuatings/40772479-6d19-4dd2-a8e0-381ac5237d74
+
+
+### Stereotypical-architecture sensings
+POST http://192.168.10.112:8000/api/v1/stereo-sensings/auto
+Content-Type: application/json
+
+{
+  "sensorId": "{{sensor_id}}",
+  "actuatorId": "{{actuator_id}}",
+  "actuatingValue": "START",
+  "sensingValue": {
+    "dustValue": "40.0"
+  },
+  "environmentValue": {
+    "temperature" : "30.0"
+  }
+}
+
+###
+GET http://192.168.10.112:8000/api/v1/stereo-sensings/bcdf1a1f-288e-46a4-a0c8-4a05ab0bc866
+
+###
+GET http://192.168.10.112:8000/api/v1/stereo-actuatings/14ccd539-4f38-408e-ae98-4c22e95913c6
+
+###
+GET http://192.168.10.112:8000/api/v1/stereo-sensings

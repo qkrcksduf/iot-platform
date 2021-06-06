@@ -1,0 +1,96 @@
+server:
+  port: 8000
+
+spring:
+  profiles: prod
+
+zuul:
+  ignoredServices: '*'
+  prefix: /api/v1
+  routes:
+    accounts:
+      path: /accounts/**
+      serviceId: account
+      url: http://192.168.219.129:8001
+      strip-prefix: false
+    accountGroups:
+      path: /accountGroups/**
+      serviceId: account
+      url: http://192.168.219.129:8001
+      strip-prefix: false
+    groups:
+      path: /groups/**
+      serviceId: account
+      url: http://192.168.219.129:8001
+      strip-prefix: false
+    cncs:
+      path: /cncs/**
+      serviceId: cnc
+      url: http://192.168.219.129:8002
+      strip-prefix: false
+    devices:
+      path: /devices/**
+      serviceId: device
+      url: http://192.168.219.129:8003
+      strip-prefix: false
+    models:
+      path: /models/**
+      serviceId: model
+      url: http://localhost:8005
+      strip-prefix: false
+    model-types:
+      path: /model-types/**
+      serviceId: model
+      url: http://localhost:8005
+      strip-prefix: false
+    actuatings:
+      path: /actuatings/**
+      serviceId: actuating
+      url: http://localhost:8004
+      strip-prefix: false
+    actuators:
+      path: /actuators/**
+      serviceId: device
+      url: http://localhost:8003
+      strip-prefix: false
+    sensings:
+      path: /sensings/**
+      serviceId: sensing
+      url: http://localhost:8006
+      strip-prefix: false
+    sensors:
+      path: /sensors/**
+      serviceId: device
+      url: http://localhost:8003
+      strip-prefix: false
+
+
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: THREAD
+          thread:
+            timeoutInMilliseconds: 100000
+  threadpool:
+    default:
+      coreSize: 1000
+      maximumSize: 10000
+      queueSizeRejectionThreshold: -1
+      maxQueueSize: -1
+
+eureka:
+  client:
+    enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  #      defaultZone: http://203.230.100.54:8761/eureka/
+  instance:
+    preferIpAddress: true
+    #ip-address: "${HOST}"
+    ip-address: "localhost"
+

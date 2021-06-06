@@ -1,0 +1,32 @@
+#server:
+#  port: 8761
+#
+#spring:
+#  profiles: prod
+#
+#eureka:
+#  client:
+#    register-with-eureka: false
+#    fetch-registry: false
+#    serviceUrl:
+#      defaultZone: "${EUREKA_SERVER:http://localhost:8761/eureka/}"
+##  instance:
+##    preferIpAddress: true
+##    ip-address: "${HOST}"
+#  server:
+#    wait-time-in-ms-when-sync-empty: 5
+
+server:
+  port: 8761
+
+spring:
+  application:
+    name: msa-architecture-eureka-server
+eureka:
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://localhost:${server.port}/eureka/
+  server:
+    wait-time-in-ms-when-sync-empty: 5

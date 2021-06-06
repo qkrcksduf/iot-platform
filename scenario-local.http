@@ -1,0 +1,283 @@
+### model-type을 등록합니다.
+POST http://localhost:8000/api/v1/model-types
+Content-Type: application/json
+
+{
+  "name": "서보모터",
+  "description": "서보모터입니다."
+}
+
+> {%
+  client.global.set("motor_model_type_id", response.body.id.toString());
+%}
+
+### model-type을 등록합니다.
+POST http://localhost:8000/api/v1/model-types
+Content-Type: application/json
+
+{
+  "name": "먼지센서",
+  "description": "미세먼지량을 측정합니다."
+}
+
+> {%
+  client.global.set("dust_model_type_id", response.body.id.toString());
+%}
+
+### model을 등록합니다.
+POST http://localhost:8000/api/v1/models
+Content-Type: application/json
+
+{
+  "name": "MG90S",
+  "modelTypeId": "{{motor_model_type_id}}",
+  "description": "저성능 서보모터입니다."
+}
+
+> {%
+  client.global.set("motor_model_id", response.body.id.toString());
+%}
+
+### model을 등록합니다.
+POST http://localhost:8000/api/v1/models
+Content-Type: application/json
+
+{
+  "name": "GP2Y10",
+  "modelTypeId": "{{dust_model_type_id}}",
+  "description": "저성능 서보모터입니다."
+}
+
+> {%
+  client.global.set("dust_model_id", response.body.id.toString());
+%}
+
+### 1. 그룹을 등록합니다.
+POST http://localhost:8000/api/v1/groups
+Content-Type: application/json
+
+{
+  "name": "대전 광역시 유성구 옷 공장 그룹",
+  "description": "대전 유성구의 옷 생산 공장 그룹"
+}
+
+> {%
+  client.global.set("group_id", response.body.id.toString());
+%}
+
+### 2. 사용자를 등록합니다.
+POST http://localhost:8000/api/v1/accounts
+Content-Type: application/json
+
+{
+  "name": "HongGilDong5",
+  "username": "gildong3",
+  "password": "gildong1235",
+  "email": "gildong@gmail.com1",
+  "role": "ROLE_USER",
+  "description": "나이크 한양 공장 공장장"
+}
+
+> {%
+  client.global.set("account_id", response.body.id.toString());
+%}
+
+### 3. 사용자를 그룹에 등록합니다.
+POST http://localhost:8000/api/v1/accountGroups
+Content-Type: application/json
+
+{
+  "accountId": "{{account_id}}",
+  "groupId": "{{group_id}}",
+  "role": "USER"
+}
+
+
+### 4. cnc를 등록합니다.
+POST http://localhost:8000/api/v1/cncs
+Content-Type: application/json
+
+{
+  "name": "대전 유성구의 옷 생산 공장의 CnC",
+  "groupId": "{{group_id}}",
+  "ipAddress": "192.168.10.0",
+  "location": "대전광역시 유성구",
+  "serial": "C0001",
+  "status": "ACTIVE",
+  "description": "유성구 옷 생산 공장들의 디바이스를 관리하기 위한 CnC입니다."
+}
+
+> {%
+  client.global.set("cnc_id", response.body.id.toString());
+%}
+
+### 5. device를 등록합니다.
+POST http://localhost:8000/api/v1/devices
+Content-Type: application/json
+
+{
+  "name": "공장 A의 Left Top Device",
+  "deviceType": "AN",
+  "cncId": "{{cnc_id}}",
+  "ipAddress": "192.168.10.2",
+  "location": "공장의 왼쪽 위에 위치한 디바이스",
+  "protocol": "MQTT",
+  "serial": "d0001",
+  "sleep": false,
+  "status": "ACTIVE",
+  "battery": 100,
+  "description": "한양 공장의 왼쪽 위에 위치한 디바이스 입니다."
+}
+
+> {%
+  client.global.set("device_id", response.body.id.toString());
+%}
+
+### 6. actuator를 등록합니다.
+POST http://localhost:8000/api/v1/actuators
+Content-Type: application/json
+
+{
+  "serial": "a0001",
+  "name": "서보모터 A",
+  "deviceId": "{{device_id}}",
+  "modelId": "{{motor_model_id}}",
+  "description": "환풍기의 스위치를 제어하는 서보모터입니다."
+}
+
+> {%
+  client.global.set("actuator_id", response.body.id.toString());
+%}
+
+### 7. sensor를 등록합니다.
+POST http://localhost:8000/api/v1/sensors
+Content-Type: application/json
+
+{
+  "serial": "s0001",
+  "name": "미세먼지 센서 A",
+  "deviceId": "{{device_id}}",
+  "modelId": "{{dust_model_id}}",
+  "description": "미세먼지량를 측정하는 센서입니다."
+}
+
+> {%
+  client.global.set("sensor_id", response.body.id.toString());
+%}
+
+### 8. 미세먼지 농도가 높아 센싱값을 등록합니다. 이후 환풍기를 돌려 미세먼지 농도를 낮춥니다.
+POST http://localhost:8000/api/v1/event-sensings/auto
+Content-Type: application/json
+
+{
+  "sensorId": "{{sensor_id}}",
+  "actuatorId": "{{actuator_id}}",
+  "actuatingValue": "START",
+  "sensingValue": {
+    "dustValue": "40.0"
+  },
+  "environmentValue": {
+    "temperature" : "30.0"
+  }
+}
+
+### 9. 환풍기 제어에 성공한 경우
+POST http://localhost:8000/api/v1/event-actuatings/result
+Content-Type: application/json
+
+{
+  "actuatingId" : "7bd490f8-e0f9-4a85-a9aa-030429aeb9be",
+  "actuatorId": "{{actuator_id}}",
+  "actuatorName" : "서보모터 A",
+  "actuatingValue": "START",
+  "actuatingResult": "SUCCESS"
+}
+
+### 9. 환풍기를 돌렸는데 디바이스에 이상이 있어 실패한 경우
+POST http://localhost:8000/api/v1/event-actuatings/result
+Content-Type: application/json
+
+{
+  "actuatingId" : "7bd490f9-e0f9-4a84-c9aa-040429ecb1aa",
+  "actuatorId": "{{actuator_id}}",
+  "actuatorName" : "서보모터 A",
+  "actuatingValue": "START",
+  "actuatingResult": "FAIL",
+  "description" : "디바이스에 문제가 있어서 제어 실패"
+}
+
+### 모든 센싱 값을 조회합니다.
+GET http://localhost:8000/api/v1/event-querys-sensings
+
+### 특정 센서의 센싱 값을 조회합니다.
+GET http://localhost:8000/api/v1/event-querys-sensings/d00cc427-e98a-4636-8d70-baf3a020050f
+
+### 모든 액추에이팅 값을 조회합니다.
+GET http://localhost:8000/api/v1/event-querys-actuatings/2f0e999e-1dbd-462d-a3fa-8ed9d572eec6
+
+### 특정 Actuator의 성공한 Actuating에 대한 조회
+GET http://localhost:8000/api/v1/event-querys-actuatings//{{actuator_id}}/results/SUCCESS
+
+### 특정 Actuator의 실패한 Actuating에 대한 조회
+GET http://localhost:8000/api/v1/event-querys-actuatings//{{actuator_id}}/results/FAIL
+
+### 특정 액추에이터의 엑추에이팅 값을 조회합니다.
+#GET http://localhost:8000/api/v1/event-querys-actuatings/{{actuator_id}}
+
+### Stereotypical-architecture sensings
+POST http://localhost:8000/api/v1/stereo-sensings/auto
+Content-Type: application/json
+
+{
+  "sensorId": "{{sensor_id}}",
+  "actuatorId": "{{actuator_id}}",
+  "actuatingValue": "START",
+  "sensingValue": {
+    "dustValue": "40.0"
+  },
+  "environmentValue": {
+    "temperature" : "30.0"
+  }
+}
+
+###
+GET http://localhost:8000/api/v1/stereo-sensings/1da7b519-0343-442f-8228-c5a5f2153b76
+
+###
+GET http://localhost:8000/api/v1/stereo-actuatings/65c4878a-b589-4c9c-99cf-d616447a8a63
+
+###
+#POST http://localhost:8000/api/v1/stereo-actuatings/result
+#Content-Type: application/json
+#
+#{
+#  "actuatingId": "7bd490f8-e0f9-4a85-a9aa-030429aeb9bb",
+#  "actuatorId": "{{actuator_id}}",
+#  "actuatorName" : "서보모터 A",
+#  "actuatingValue": "START",
+#  "actuatingResult": "FAIL"
+#}
+#
+####
+#POST http://localhost:8000/api/v1/virtual-cncs/sync-actuating
+#Content-Type: application/json
+#
+#{
+#  "actuatingId": "7bd490f8-e1f9-4a85-a9aa-030429aeb2bb",
+#  "actuatorId": "{{actuator_id}}",
+#  "actuatorName" : "서보모터 A",
+#  "actuatingValue": "START",
+#  "protocol": "MQTT"
+#}
+#
+####
+#POST http://localhost:8000/virtual-cncs/async-actuating
+#Content-Type: application/json
+#
+#{
+#  "actuatingId": "7bd490f8-e0f9-4a85-a9aa-030439aeb1bb",
+#  "actuatorId": "{{actuator_id}}",
+#  "actuatorName" : "서보모터 A",
+#  "actuatingValue": "START",
+#  "protocol": "MQTT"
+#}
